@@ -1,3 +1,4 @@
+﻿# -*- coding: utf-8 -*-
 from util import ParallelCorpus, printDictionary
 
 
@@ -76,11 +77,12 @@ class Aligner(object):
         
                 
                     
-        print self.transProbOfTargetGivenSource
+        '''print self.transProbOfTargetGivenSource
         print self.countOfTargetGivenSource
         print self.totalCountOfSource
-        print self.normalizationForTarget
+        print self.normalizationForTarget'''
         
+        printDictionary(self.transProbOfTargetGivenSource)
       
     def train(self):
         return
