@@ -10,12 +10,6 @@ class ParallelCorpus():
                 ["i love you", "我 爱 你"],
                 ["i adore you", "我 喜欢 你"]
                 ];
-    
-    '''data = [
-            ["das haus", "the house"],
-            ["das Buch", "the book"],
-            ["ein Buch", "a book"]
-            ];'''
 
     curIdx = -1
 
@@ -55,7 +49,7 @@ def printDictionary(dic):
     for key in dic.keys():
         keysStr = ""
         for i in range(0, len(key)):
-            keysStr += key[i] + ", "
+            keysStr += str(key[i]) + ", "
         keysStr = keysStr[:-2]
         print "".join(keysStr) + " = " + str(dic[key])
         
