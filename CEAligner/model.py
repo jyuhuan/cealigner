@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
-from util import printDictionary
+from util import printDictionary, tryGetDoubleValueByKeyFromDic,\
+    tryIncDoubleValueAtKeyInDic
 
 ''' tgt = target '''
 ''' src = source '''
@@ -66,10 +67,10 @@ class NaiveAligner(object):
                         self.countOfTargetGivenSource[(tgtWord, srcWord)] += self.transProbOfTargetGivenSource[(tgtWord, srcWord)] / self.normalizationForTarget[tgtWord];
                         self.countOfSourceWordOccurrence[srcWord] += self.transProbOfTargetGivenSource[(tgtWord, srcWord)] / self.normalizationForTarget[tgtWord];
                         
-            
-        uniqueSrcWords = corpus.getAllSourceLanguageWords()
-        uniqueTgtWords = corpus.getAllTargetLanguageWords()
-        
+                # TODO: I don't know why the following block affects the result
+                uniqueSrcWords = corpus.getAllSourceLanguageWords()
+                uniqueTgtWords = corpus.getAllTargetLanguageWords()
+                
         for srcWord in uniqueSrcWords:
             for tgtWord in uniqueTgtWords:
                 safeCountOfTagetGivenSource = 0.0;
@@ -193,3 +194,65 @@ class IBM2Aligner:
                 self.t[(srcWord, tgtWord)] = srcTgtTransCounts_safe / srcOccurCounts_safe
         
         printDictionary(self.t)
+
+
+
+class IBMModel1:
+    t = {}
+    srcTgtProbs = {}    # t(e|f)
+    srcTgtCounts = {}   # count(e|f)
+    tgtNormTerms = {}   # s-total(e)
+    srcCounts = {}      # total(f)
+    
+    def __init__(self, corpus):
+        tgtLangVocabCount = corpus.getTargetLanguageWordCount()
+        
+        ''' INIT: translation probabilities '''
+        for pairIdx in range(0, corpus.getEntryCount()):
+            curPair = corpus.getEntryAt(pairIdx)
+            print "Preparing to initialize t(e|f)s..."
+            srcWords = curPair[0].split()
+            tgtWords = curPair[1].split()
+            
+            for srcWord in srcWords:
+                for tgtWord in tgtWords:
+                    self.srcTgtProbs[(srcWord, tgtWord)] = 1.0 / tgtLangVocabCount;
+            print "t(e|f) in the " + str(pairIdx) + "/" + str(corpus.getEntryCount()) + "th pair initialized. "
+        
+        ''' LOOP: epochs '''
+        for epochIdx in range(0, 1000):  # this loop is run until convergence
+            ''' initialize both counts '''
+            uniqueWordsInSrcVocab = corpus.getAllSourceLanguageWords()
+            uniqueWordsInTgtVocab = corpus.getAllTargetLanguageWords()
+            for srcWord in uniqueWordsInSrcVocab:
+                for tgtWord in uniqueWordsInTgtVocab:
+                    self.srcTgtCounts[(srcWord, tgtWord)] = 0.0
+                    self.srcCounts[srcWord] = 0.0
+            
+            ''' examine each pair in the corpus '''
+            for pairIdx in range(0, corpus.getEntryCount()):
+                curPair = corpus.getEntryAt(pairIdx)
+                srcWords = curPair[0].split()
+                tgtWords = curPair[1].split()
+                
+                ''' calc normalization term '''
+                for tgtWord in tgtWords:
+                    self.tgtNormTerms[tgtWord] = 0
+                    for srcWord in srcWords:
+                        self.tgtNormTerms[tgtWord] += self.srcTgtProbs[(srcWord, tgtWord)]
+                
+                ''' collect count '''
+                for tgtWord in tgtWords:
+                    for srcWord in srcWords:
+                        inc = self.srcTgtProbs[(srcWord, tgtWord)] / self.tgtNormTerms[tgtWord]
+                        self.srcTgtCounts[(srcWord, tgtWord)] += inc
+                        self.srcCounts[srcWord] += inc
+            
+                #print "Processing " + str(pairIdx) + "th pair at " + str(epochIdx) + "th epoch."
+            
+            ''' estimate trans probs '''
+            for srcWord in uniqueWordsInSrcVocab:
+                for tgtWord in uniqueWordsInTgtVocab:
+                    self.srcTgtProbs[(srcWord, tgtWord)] = self.srcTgtCounts[(srcWord, tgtWord)] / self.srcCounts[srcWord]
+                    
+        printDictionary(self.srcTgtProbs)
