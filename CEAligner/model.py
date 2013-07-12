@@ -1,6 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 from util import printDictionary, tryGetDoubleValueByKeyFromDic,\
-    tryIncDoubleValueAtKeyInDic
+    tryIncDoubleValueAtKeyInDic, printTopResultsInDic
+import gc
 
 ''' tgt = target '''
 ''' src = source '''
@@ -205,7 +206,9 @@ class IBMModel1:
     srcCounts = {}      # total(f)
     
     def __init__(self, corpus):
+        gc.disable()
         tgtLangVocabCount = corpus.getTargetLanguageWordCount()
+        srcLangCount = corpus.getSourceLanguageWordCount()
         
         ''' INIT: translation probabilities '''
         for pairIdx in range(0, corpus.getEntryCount()):
@@ -220,10 +223,20 @@ class IBMModel1:
             print "t(e|f) in the " + str(pairIdx) + "/" + str(corpus.getEntryCount()) + "th pair initialized. "
         
         ''' LOOP: epochs '''
-        for epochIdx in range(0, 1000):  # this loop is run until convergence
+        uniqueWordsInSrcVocab = corpus.getAllSourceLanguageWords()
+        uniqueWordsInTgtVocab = corpus.getAllTargetLanguageWords()
+        
+        print "loop start"
+        for srcWord in uniqueWordsInSrcVocab:
+            for tgtWord in uniqueWordsInTgtVocab:
+                self.srcTgtCounts[(srcWord, tgtWord)] = 0.0
+                self.srcCounts[srcWord] = 0.0
+        print "loop end"
+        
+        for epochIdx in range(0, 10):  # this loop is run until convergence
             ''' initialize both counts '''
-            uniqueWordsInSrcVocab = corpus.getAllSourceLanguageWords()
-            uniqueWordsInTgtVocab = corpus.getAllTargetLanguageWords()
+            print "Initializing count(e, f) and count(f)"
+            
             for srcWord in uniqueWordsInSrcVocab:
                 for tgtWord in uniqueWordsInTgtVocab:
                     self.srcTgtCounts[(srcWord, tgtWord)] = 0.0
@@ -248,11 +261,14 @@ class IBMModel1:
                         self.srcTgtCounts[(srcWord, tgtWord)] += inc
                         self.srcCounts[srcWord] += inc
             
-                #print "Processing " + str(pairIdx) + "th pair at " + str(epochIdx) + "th epoch."
+                print "Processing " + str(pairIdx) + "/" + str(corpus.getEntryCount()) + "th pair at " + str(epochIdx) + "th epoch."
+                
             
+            print "now estimating trans probs"
             ''' estimate trans probs '''
             for srcWord in uniqueWordsInSrcVocab:
                 for tgtWord in uniqueWordsInTgtVocab:
                     self.srcTgtProbs[(srcWord, tgtWord)] = self.srcTgtCounts[(srcWord, tgtWord)] / self.srcCounts[srcWord]
-                    
-        printDictionary(self.srcTgtProbs)
+            print "estimation done"        
+        printTopResultsInDic(self.srcTgtProbs, 0.09)
+        

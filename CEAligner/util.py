@@ -38,8 +38,6 @@ class ParallelCorpus():
         print "Files are now in memory. Now splitting the lines... "
         self.srcLines = srcF.read().splitlines()
         self.tgtLines = tgtF.read().splitlines()
-        self.srcLines = self.srcLines[1:1000]
-        self.tgtLines = self.tgtLines[1:1000]
         print "Files are now splitted into lines. "
         print "Corpus ready. "
         return
@@ -70,7 +68,7 @@ class ParallelCorpus():
         return allWords
     
     def getTargetLanguageWordCount(self):
-        return len(self.getAllSourceLanguageWords())
+        return len(self.getAllTargetLanguageWords())
 
 
 def printDictionary(dic):
@@ -92,3 +90,14 @@ def tryIncDoubleValueAtKeyInDic(key, dic, val):
         dic[key] += val
     else:
         dic[key] = val
+    return
+
+def printTopResultsInDic(dic, threshold):
+    for key in dic.keys():
+        if dic[key] >= threshold:
+            keysStr = ""
+            for i in range(0, len(key)):
+                keysStr += str(key[i]) + ", "
+            keysStr = keysStr[:-2]
+            print "".join(keysStr) + " = " + str(dic[key])
+    return
