@@ -8,9 +8,9 @@ A Chinese-English parallel corpus aligner.
 1.  **main.py**: the main function. This is where the code for model testing should be. Currently it does the following:
 
     1. Initializes a parallel corpus from two text files;
-    2. Trains an IBM model with the corpus.
+    2. Trains an IBM model I with the corpus.
 
-2.  **model.py**: contains classes for all models, including IBM Models and their optimized versions. Currently, this file contains:
+2.  **model.py**: contains classes for all models, Older implementations of models are all in the file **deprecated.py**. Currently, this file contains:
 
     1.   *class* **ModelI**: an IBM Model I implementation
     
