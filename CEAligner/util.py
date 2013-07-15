@@ -1,35 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 class ParallelCorpus():
-    
-    '''data = [
-                ["here are some chinese words", "这里 有 一些 中文 词语"],
-                ["i am a chinese", "我 是 中国人"],
-                ["i do not have a computer", "我 没 有 电脑"],
-                ["you should come to china some time in the future", "将来 你 应该 来 中国 看 看"],
-                ["the weather in canada is awesome", "加拿大 的 天气 太 好 了"],
-                ["i love you", "我 爱 你"],
-                ["i adore you", "我 喜欢 你"]
-                ];'''
-    
-    '''data = [
-            ["das Haus", "the house"],
-            ["das Buch", "the book"],
-            ["ein Buch", "a book"]
-            ];'''
-    
-    '''data = [
-            ["wo ai ni", "i love you"],
-            ["ni ai wo", "you love me"],
-            ["gei wo yi ben shu", "give me a book"],
-            ["ni bu shi xuesheng", "you are not a student"],
-            ["wo mei you ni de bi", "I do not have your pen"]
-            ];'''
-    data = []
-    
     srcLines = []
     tgtLines = []
-
-    curIdx = -1
 
     def __init__(self, sourceLangFilePath, targetLangFilePath):
         print "Opening files... "
@@ -101,3 +73,5 @@ def printTopResultsInDic(dic, threshold):
             keysStr = keysStr[:-2]
             print "".join(keysStr) + " = " + str(dic[key])
     return
+
+
